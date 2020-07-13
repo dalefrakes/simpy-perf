@@ -87,20 +87,23 @@ def setup(env, num_machines, washtime, t_inter):
         env.process(car(env, 'Car %d' % i, carwash))
 
 
-# Setup and start the simulation
-
-start_time = time.perf_counter()   # for timing the simulation
-
-#print('Carwash')
-#print('Check out http://youtu.be/fXXmeP9TvBg while simulating ... ;-)')
-random.seed(RANDOM_SEED)  # This helps reproducing the results
-
-# Create an environment and start the setup process
-env = simpy.Environment()
-env.process(setup(env, NUM_MACHINES, WASHTIME, T_INTER))
-
-# Execute!
-env.run(until=SIM_TIME)
-
-run_time = time.perf_counter() - start_time
-print("Simulation complete.  Run-time {} seconds".format(run_time))
+for num_days in range(90):     # rerun the simulation for growing number of days
+    # Setup and start the simulation
+    
+    start_time = time.perf_counter()   # for timing the simulation
+    
+    SIM_TIME = (num_days + 1) * 24 * 60
+    #print('Carwash')
+    #print('Check out http://youtu.be/fXXmeP9TvBg while simulating ... ;-)')
+    random.seed(RANDOM_SEED)  # This helps reproducing the results
+    
+    # Create an environment and start the setup process
+    env = simpy.Environment(initial_time = 0)
+    env.process(setup(env, NUM_MACHINES, WASHTIME, T_INTER))
+    
+    # Execute!
+    env.run(until=SIM_TIME)
+    
+    run_time = time.perf_counter() - start_time
+    print("Simulation complete. Sim-Days: {}, Run-time: {} seconds".format(
+        num_days + 1, run_time))
