@@ -49,7 +49,7 @@ class Carwash(object):
         """The washing processes. It takes a ``car`` processes and tries
         to clean it."""
         yield self.env.timeout(WASHTIME)
-        print("Carwash claned car # %s." %(car))
+        # print("Carwash claned car # %s." %(car))
 
 
 def car(env, name, cw):
@@ -60,14 +60,14 @@ def car(env, name, cw):
     leaves to never come back ...
 
     """
-    print('%s arrives at the carwash at %.2f.' % (name, env.now))
+    # print('%s arrives at the carwash at %.2f.' % (name, env.now))
     with cw.machine.request() as request:
         yield request
 
-        print('%s enters the carwash at %.2f.' % (name, env.now))
+        # print('%s enters the carwash at %.2f.' % (name, env.now))
         yield env.process(cw.wash(name))
 
-        print('%s leaves the carwash at %.2f.' % (name, env.now))
+        # print('%s leaves the carwash at %.2f.' % (name, env.now))
 
 
 def setup(env, num_machines, washtime, t_inter):
@@ -91,8 +91,8 @@ def setup(env, num_machines, washtime, t_inter):
 
 start_time = time.perf_counter()   # for timing the simulation
 
-print('Carwash')
-print('Check out http://youtu.be/fXXmeP9TvBg while simulating ... ;-)')
+#print('Carwash')
+#print('Check out http://youtu.be/fXXmeP9TvBg while simulating ... ;-)')
 random.seed(RANDOM_SEED)  # This helps reproducing the results
 
 # Create an environment and start the setup process
