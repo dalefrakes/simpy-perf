@@ -22,7 +22,7 @@ Scenario:
 import random
 
 import simpy
-
+import time
 
 RANDOM_SEED = 42
 NUM_MACHINES = 1  # Number of machines in the carwash
@@ -49,8 +49,7 @@ class Carwash(object):
         """The washing processes. It takes a ``car`` processes and tries
         to clean it."""
         yield self.env.timeout(WASHTIME)
-        print("Carwash removed %d%% of %s's dirt." %
-              (random.randint(50, 99), car))
+        print("Carwash claned car # %s." %(car))
 
 
 def car(env, name, cw):
@@ -89,6 +88,9 @@ def setup(env, num_machines, washtime, t_inter):
 
 
 # Setup and start the simulation
+
+start_time = time.perf_counter()   # for timing the simulation
+
 print('Carwash')
 print('Check out http://youtu.be/fXXmeP9TvBg while simulating ... ;-)')
 random.seed(RANDOM_SEED)  # This helps reproducing the results
@@ -99,3 +101,6 @@ env.process(setup(env, NUM_MACHINES, WASHTIME, T_INTER))
 
 # Execute!
 env.run(until=SIM_TIME)
+
+run_time = time.perf_counter() - start_time
+print("Simulation complete.  Run-time {} seconds".format(run_time))
