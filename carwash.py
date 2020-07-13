@@ -82,7 +82,7 @@ def setup(env, num_machines, washtime, t_inter):
 
     # Create more cars while the simulation is running
     while True:
-        yield env.timeout(random.randint(t_inter - 2, t_inter + 2))
+        yield env.timeout(random.random() * t_inter)
         i += 1
         env.process(car(env, 'Car %d' % i, carwash))
 
