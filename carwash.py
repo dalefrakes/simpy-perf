@@ -25,10 +25,10 @@ import simpy
 
 
 RANDOM_SEED = 42
-NUM_MACHINES = 2  # Number of machines in the carwash
+NUM_MACHINES = 1  # Number of machines in the carwash
 WASHTIME = 5      # Minutes it takes to clean a car
 T_INTER = 7       # Create a car every ~7 minutes
-SIM_TIME = 20     # Simulation time in minutes
+SIM_TIME = 90 * 24 * 60     # Simulation time in minutes (90 days)
 
 
 class Carwash(object):
