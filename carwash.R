@@ -19,7 +19,7 @@ car <- trajectory() %>%
   seize("wash", 1) %>%
   # log_("enters the carwash") %>%
   timeout(WASHTIME) %>%
-  set_attribute("dirt_removed", function() sample(50:99, 1)) %>%
+  #set_attribute("dirt_removed", function() sample(50:99, 1)) %>%
   # log_(function() 
     #paste0(get_attribute(env, "dirt_removed"), "% of dirt was removed")) %>%
   release("wash", 1) # %>%
