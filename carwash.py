@@ -28,7 +28,7 @@ RANDOM_SEED = 42
 NUM_MACHINES = 1  # Number of machines in the carwash
 WASHTIME = 5      # Minutes it takes to clean a car
 T_INTER = 1       # Create a car every ~7 minutes
-SIM_TIME = 90 * 24 * 60     # Simulation time in minutes (90 days)
+# SIM_TIME = 90 * 24 * 60     # Simulation time in minutes (90 days)
 
 
 class Carwash(object):
@@ -89,7 +89,7 @@ def setup(env, num_machines, washtime, t_inter):
 
 NUM_ITERATIONS = 5   # how many times to run each day to get mean performance
 
-for num_days in range(25):     # rerun the simulation for growing number of days
+for num_days in range(90):     # rerun the simulation for growing number of days
 
     SIM_TIME = (num_days + 1) * 24 * 60
     
