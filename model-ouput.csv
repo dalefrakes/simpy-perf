@@ -1,0 +1,8 @@
+"name","start_time","end_time","activity_time","finished","replication","waiting_time"
+"Customer0",0,12,12,TRUE,1,0
+"Customer1",0.17736473120749,24,12,TRUE,1,11.8226352687925
+"Guido0",22,36,12,TRUE,1,2
+"Mario0",22,48,12,TRUE,1,14
+"Customer2",8.64105984526587,60,12,TRUE,1,39.3589401547341
+"Customer3",21.1345850202235,72,12,TRUE,1,38.8654149797765
+"Customer4",28.0923489329399,84,12,TRUE,1,43.9076510670601
