@@ -1,0 +1,157 @@
+---
+title: "Simmer for our DC Simulation"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r}
+library(simmer)
+```
+
+
+# Notes for making the DC Simulation in Simmer
+
+I'm going through the documentation for Simmer to see how we can accomplish the things we need to do.  Each major "thing" is in a sub-section.
+
+
+## Priority Queing
+
+This example shows how priority (without preemption) can be handled.
+
+[Bank 2](https://cran.r-project.org/web/packages/simmer/vignettes/simmer-04-bank-2.html)
+
+```{r}
+set.seed(1933)
+
+bank <- simmer()
+
+customer <-
+  trajectory("Customer's path") %>%
+  set_attribute("start_time", function() {now(bank)}) %>%
+  log_(function() {
+         paste("Queue is", get_queue_count(bank, "counter"), "on arrival")
+         }) %>%
+  seize("counter") %>%
+  log_(function() {paste("Waited", now(bank) - get_attribute(bank, "start_time"))}) %>%
+  timeout(12) %>%
+  release("counter") %>%
+  log_("Completed")
+
+bank <-
+  simmer("bank") %>%
+  add_resource("counter") %>%
+  add_generator("Customer", customer, function() {c(0, rexp(4, 1/10), -1)}) %>%
+  add_generator("Mario", customer, at(22), priority = 1) %>%
+  add_generator("Guido", customer, at(22), priority = 2)
+
+bank %>% run(until = 400)
+
+
+bank %>%
+  get_mon_arrivals() %>%
+  transform(waiting_time = end_time - start_time - activity_time)
+
+```
+
+
+## Scheduling
+
+I think we can use this to schedule downtime in the DC.  That is, when they're running and not.  Capacity seems to be contained here too, so maybe that can be used to limit daily capacity.
+
+[https://r-simmer.org/reference/schedule.html](https://r-simmer.org/reference/schedule.html)
+
+```{r}
+# Schedule 3 units from 8 to 16 h
+#          2 units from 16 to 24 h
+#          1 units from 24 to 8 h
+capacity_schedule <- schedule(c(8, 16, 24), c(3, 2, 1), period=24)
+
+env <- simmer() %>%
+  add_resource("dummy", capacity_schedule)
+
+```
+
+Here's another example that encompases the idea of schedule and capcity, also from [https://cran.r-project.org/web/packages/simmer/vignettes/simmer-04-bank-2.html](https://cran.r-project.org/web/packages/simmer/vignettes/simmer-04-bank-2.html).
+
+```{r}
+
+library(simmer)
+
+maxTime = 400
+set.seed(393937)
+
+bank <- simmer()
+
+customer <-
+  trajectory("Customer's path") %>%
+  log_(function()
+    if (get_capacity(bank, "door") == 0)
+      "Here I am but the door is shut."
+    else "Here I am and the door is open."
+  ) %>%
+  seize("door") %>%
+  log_("I can go in!") %>%
+  release("door") %>%
+  seize("counter") %>%
+  timeout(function() {rexp(1, 1/10)}) %>%
+  release("counter")
+
+openTime <- rexp(1, 1/10)
+
+door_schedule <- schedule(c(0, openTime), c(0, Inf))
+
+doorman <-
+  trajectory() %>%
+  timeout(openTime) %>%
+  log_("Ladies and Gentlemen! You may all enter.")
+
+bank <-
+  simmer("bank") %>%
+  add_resource("door", capacity = door_schedule) %>%
+  add_resource("counter") %>%
+  add_generator("Customer",
+                customer,
+                at(c(0, cumsum(rexp(5 - 1, 0.1))))) %>%
+  add_generator("Doorman", doorman, at(0))
+
+bank %>% run(until = maxTime)
+
+bank %>%
+  get_mon_arrivals() %>%
+  transform(waiting_time = end_time - start_time - activity_time)
+
+```
+
+
+## Loading Orders from a DataFrame?
+
+[https://r-simmer.org/reference/add_dataframe.html](https://r-simmer.org/reference/add_dataframe.html)
+
+This should work to pre-load all the orders with arrival times and priorities.
+
+
+## Closure to build function that returns repeating values
+
+I think we can use this as a function that takes the capacity array to work as part of a `schedule` object to set a fixed schedule with variable capacity.  This is in the middle of [https://cran.r-project.org/web/packages/simmer/vignettes/simmer-04-bank-1.html](https://cran.r-project.org/web/packages/simmer/vignettes/simmer-04-bank-1.html).
+
+```{r}
+# Function to specify a series of waiting times, that loop around
+loop <- function(...) {
+    time_diffs <- c(...)
+    i <- 0
+    function() {
+      if (i < length(time_diffs)) {
+        i <<- i+1
+      } else {
+        i <<- 1
+      }
+      return(time_diffs[i])
+    }
+  }
+
+x <- loop(10, 7, 20)
+x(); x(); x(); x(); x()
+
+```
